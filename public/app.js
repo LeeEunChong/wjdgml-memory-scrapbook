@@ -1,26 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 로그인 상태 확인
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/login.html';
-        return;
-    }
-
     const modal = document.getElementById('memoryModal');
     const addMemoryBtn = document.getElementById('addMemoryBtn');
     const closeBtn = document.querySelector('.close');
     const memoryForm = document.getElementById('memoryForm');
     const timelineContainer = document.querySelector('.timeline-container');
-    const logoutBtn = document.createElement('button');
-    logoutBtn.textContent = '로그아웃';
-    logoutBtn.id = 'logoutBtn';
-    document.querySelector('nav').appendChild(logoutBtn);
-
-    // 로그아웃 기능
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('token');
-        window.location.href = '/login.html';
-    });
 
     // 모달 열기/닫기
     addMemoryBtn.addEventListener('click', () => {
@@ -54,9 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('/api/memories', {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
                 body: formData
             });
 
@@ -65,9 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 addMemoryToTimeline(memory);
                 modal.style.display = 'none';
                 memoryForm.reset();
-            } else if (response.status === 401) {
-                localStorage.removeItem('token');
-                window.location.href = '/login.html';
             }
         } catch (error) {
             console.error('Error saving memory:', error);
@@ -94,21 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 기존 추억 불러오기
     async function loadMemories() {
         try {
-            const response = await fetch('/api/memories', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await fetch('/api/memories');
+            const memories = await response.json();
             
-            if (response.ok) {
-                const memories = await response.json();
-                memories.forEach(memory => {
-                    addMemoryToTimeline(memory);
-                });
-            } else if (response.status === 401) {
-                localStorage.removeItem('token');
-                window.location.href = '/login.html';
-            }
+            memories.forEach(memory => {
+                addMemoryToTimeline(memory);
+            });
         } catch (error) {
             console.error('Error loading memories:', error);
         }
@@ -116,4 +84,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 페이지 로드 시 추억 불러오기
     loadMemories();
-}); 
+});

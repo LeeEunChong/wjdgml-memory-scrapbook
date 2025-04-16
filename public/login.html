@@ -58,7 +58,7 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            try {
+            /*try {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {
@@ -78,7 +78,7 @@
             } catch (error) {
                 document.getElementById('errorMessage').textContent = '로그인 중 오류가 발생했습니다';
             }
-        });
+        });*/
 
         document.getElementById('registerBtn').addEventListener('click', () => {
             window.location.href = '/register.html';
