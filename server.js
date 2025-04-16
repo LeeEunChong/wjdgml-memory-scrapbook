@@ -15,8 +15,8 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // 하드코딩된 사용자 정보
-const USERNAME = 'wjdgml';
-const PASSWORD = 'wjdgml1216';
+const USERNAME = 'wjdgml1216';
+const PASSWORD = 'wjdgmlWkd';
 const hashedPassword = bcrypt.hashSync(PASSWORD, 10);
 
 // MongoDB Connection
