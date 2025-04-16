@@ -31,8 +31,13 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/scrapbook
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { username, password } = req.body;
+        console.log('Login attempt:', { username, password }); // 디버깅용
         
         if (username !== USERNAME || !bcrypt.compareSync(password, hashedPassword)) {
+            console.log('Login failed:', { 
+                usernameMatch: username === USERNAME,
+                passwordMatch: bcrypt.compareSync(password, hashedPassword)
+            }); // 디버깅용
             return res.status(401).json({ message: '아이디 또는 비밀번호가 틀렸습니다' });
         }
 
@@ -42,8 +47,10 @@ app.post('/api/auth/login', async (req, res) => {
             { expiresIn: '24h' }
         );
 
+        console.log('Login successful'); // 디버깅용
         res.json({ token });
     } catch (error) {
+        console.error('Login error:', error); // 디버깅용
         res.status(500).json({ message: error.message });
     }
 });
