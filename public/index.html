@@ -200,10 +200,16 @@
             // 날짜 형식 수정
             const dateInput = document.getElementById('memoryDate').value;
             if (dateInput) {
+                // 날짜 형식 검증
                 const date = new Date(dateInput);
-                formData.append('date', date.toISOString());
+                if (isNaN(date.getTime())) {
+                    alert('유효하지 않은 날짜입니다');
+                    return;
+                }
+                formData.append('date', dateInput); // ISO 형식으로 변환하지 않고 원래 형식 유지
             } else {
-                formData.append('date', new Date().toISOString());
+                const today = new Date();
+                formData.append('date', today.toISOString().split('T')[0]); // YYYY-MM-DD 형식
             }
             
             formData.append('image', document.getElementById('memoryImage').files[0]);
@@ -233,7 +239,11 @@
         async function fetchMemories() {
             try {
                 const response = await fetch('/api/memories');
-                const memories = await response.json();
+                if (!response.ok) {
+                    throw new Error('서버 응답 오류');
+                }
+                const data = await response.json();
+                const memories = Array.isArray(data) ? data : [];
                 
                 // 월별로 그룹화
                 const groupedMemories = memories.reduce((acc, memory) => {
@@ -253,6 +263,9 @@
                 updateSlider(memories);
             } catch (error) {
                 console.error('Error:', error);
+                // 에러 발생 시 빈 갤러리 표시
+                updateGallery({});
+                updateSlider([]);
             }
         }
 

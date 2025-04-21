@@ -37,7 +37,7 @@ cloudinary.config({
 });
 
 // MongoDB Connection
-const uri = "mongodb+srv://wjdgml1216:XHiwvBc2C6xHjCHO@wjdgmlwkd.cvcbl67.mongodb.net/?appName=wjdgmlWkd";
+const uri = "mongodb+srv://wjdgml1216:wjdgmlWkd@wjdgmlwkd.cvcbl67.mongodb.net/?appName=wjdgmlWkd";
 
 const connectDB = async () => {
     try {
@@ -50,7 +50,17 @@ const connectDB = async () => {
             retryReads: true
         });
         console.log("MongoDB 연결 성공!");
-        
+
+        // 컬렉션 초기화
+        const db = mongoose.connection.db;
+        const collections = await db.listCollections().toArray();
+        const collectionNames = collections.map(col => col.name);
+
+        if (!collectionNames.includes('memories')) {
+            await db.createCollection('memories');
+            console.log('memories 컬렉션이 생성되었습니다.');
+        }
+
         // 연결 상태 모니터링
         mongoose.connection.on('connected', () => {
             console.log('MongoDB 연결됨');
@@ -87,10 +97,10 @@ const Memory = mongoose.model('Memory', memorySchema);
 app.get('/api/memories', async (req, res) => {
     try {
         const memories = await Memory.find().sort({ date: -1 });
-        res.json(memories);
+        res.json(memories || []);
     } catch (error) {
         console.error('Error fetching memories:', error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message, memories: [] });
     }
 });
 
@@ -106,10 +116,21 @@ app.post('/api/memories', upload.single('image'), async (req, res) => {
             imageUrl = uploadResult.secure_url;
         }
 
+        // 날짜 처리 개선
+        let memoryDate;
+        if (req.body.date) {
+            memoryDate = new Date(req.body.date);
+            if (isNaN(memoryDate.getTime())) {
+                throw new Error('유효하지 않은 날짜 형식입니다');
+            }
+        } else {
+            memoryDate = new Date();
+        }
+
         const memory = new Memory({
             title: req.body.title,
             content: req.body.content,
-            date: req.body.date ? new Date(req.body.date) : new Date(),
+            date: memoryDate,
             imageUrl: imageUrl
         });
 
