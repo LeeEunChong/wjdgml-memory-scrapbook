@@ -196,7 +196,16 @@
             const formData = new FormData();
             formData.append('title', document.getElementById('memoryTitle').value);
             formData.append('content', document.getElementById('memoryDescription').value);
-            formData.append('date', document.getElementById('memoryDate').value);
+            
+            // 날짜 형식 수정
+            const dateInput = document.getElementById('memoryDate').value;
+            if (dateInput) {
+                const date = new Date(dateInput);
+                formData.append('date', date.toISOString());
+            } else {
+                formData.append('date', new Date().toISOString());
+            }
+            
             formData.append('image', document.getElementById('memoryImage').files[0]);
 
             try {
