@@ -86,7 +86,16 @@ connectDB();
 const memorySchema = new mongoose.Schema({
     title: String,
     content: String,
-    date: Date,
+    date: {
+        type: Date,
+        required: true,
+        validate: {
+            validator: function(v) {
+                return v instanceof Date && !isNaN(v);
+            },
+            message: props => `${props.value}는 유효한 날짜가 아닙니다!`
+        }
+    },
     imageUrl: String,
     createdAt: { type: Date, default: Date.now }
 });
@@ -119,9 +128,12 @@ app.post('/api/memories', upload.single('image'), async (req, res) => {
         // 날짜 처리 개선
         let memoryDate;
         if (req.body.date) {
-            memoryDate = new Date(req.body.date);
+            // YYYY-MM-DD 형식의 문자열을 Date 객체로 변환
+            const [year, month, day] = req.body.date.split('-').map(Number);
+            memoryDate = new Date(year, month - 1, day);
+            
             if (isNaN(memoryDate.getTime())) {
-                throw new Error('유효하지 않은 날짜 형식입니다');
+                throw new Error('유효하지 않은 날짜 형식입니다. YYYY-MM-DD 형식으로 입력해주세요.');
             }
         } else {
             memoryDate = new Date();

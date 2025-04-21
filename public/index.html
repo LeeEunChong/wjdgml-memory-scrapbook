@@ -200,16 +200,17 @@
             // 날짜 형식 수정
             const dateInput = document.getElementById('memoryDate').value;
             if (dateInput) {
-                // 날짜 형식 검증
-                const date = new Date(dateInput);
-                if (isNaN(date.getTime())) {
-                    alert('유효하지 않은 날짜입니다');
+                // 날짜 형식 검증 (YYYY-MM-DD)
+                const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+                if (!dateRegex.test(dateInput)) {
+                    alert('날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력해주세요.');
                     return;
                 }
-                formData.append('date', dateInput); // ISO 형식으로 변환하지 않고 원래 형식 유지
+                formData.append('date', dateInput);
             } else {
                 const today = new Date();
-                formData.append('date', today.toISOString().split('T')[0]); // YYYY-MM-DD 형식
+                const formattedDate = today.toISOString().split('T')[0];
+                formData.append('date', formattedDate);
             }
             
             formData.append('image', document.getElementById('memoryImage').files[0]);
