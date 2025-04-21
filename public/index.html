@@ -193,27 +193,23 @@
         memoryForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const formData = new FormData();
-            formData.append('title', document.getElementById('memoryTitle').value);
-            formData.append('content', document.getElementById('memoryDescription').value);
-            
-            // 날짜 형식 수정
-            const dateInput = document.getElementById('memoryDate').value;
-            if (dateInput) {
-                // 날짜 형식 검증 (YYYY-MM-DD)
-                const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-                if (!dateRegex.test(dateInput)) {
-                    alert('날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력해주세요.');
-                    return;
-                }
-                formData.append('date', dateInput);
-            } else {
-                const today = new Date();
-                const formattedDate = today.toISOString().split('T')[0];
-                formData.append('date', formattedDate);
+            const title = document.getElementById('memoryTitle').value;
+            const content = document.getElementById('memoryDescription').value;
+            const date = document.getElementById('memoryDate').value;
+            const image = document.getElementById('memoryImage').files[0];
+
+            if (!title || !content || !date) {
+                alert('제목, 내용, 날짜는 필수입니다.');
+                return;
             }
-            
-            formData.append('image', document.getElementById('memoryImage').files[0]);
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('content', content);
+            formData.append('date', date);
+            if (image) {
+                formData.append('image', image);
+            }
 
             try {
                 const response = await fetch('/api/memories', {

@@ -151,8 +151,9 @@ app.get('/api/memories', async (req, res) => {
 
 app.post('/api/memories', upload.single('image'), async (req, res) => {
     try {
-        let imageUrl = null;
+        console.log('Received memory data:', req.body);
         
+        let imageUrl = null;
         if (req.file) {
             const uploadResult = await cloudinary.uploader.upload(req.file.path, {
                 folder: 'scrapbook',
@@ -175,6 +176,8 @@ app.post('/api/memories', upload.single('image'), async (req, res) => {
             memoryDate = new Date();
         }
 
+        console.log('Processed date:', memoryDate);
+
         const memory = new Memory({
             title: req.body.title,
             content: req.body.content,
@@ -183,10 +186,14 @@ app.post('/api/memories', upload.single('image'), async (req, res) => {
         });
 
         const newMemory = await memory.save();
+        console.log('Memory saved successfully:', newMemory);
         res.status(201).json(newMemory);
     } catch (error) {
         console.error('Error creating memory:', error);
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ 
+            message: error.message,
+            details: error.errors || '추억 추가에 실패했습니다'
+        });
     }
 });
 
