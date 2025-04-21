@@ -37,7 +37,7 @@ cloudinary.config({
 });
 
 // MongoDB Connection
-const uri = "mongodb+srv://wjdgml1216:wjdgmlWkd@wjdgmlwkd.cvcbl67.mongodb.net/?appName=wjdgmlWkd";
+const uri = "mongodb+srv://wjdgml1216:XHiwvBc2C6xHjCHO@wjdgmlwkd.cvcbl67.mongodb.net/?appName=wjdgmlWkd";
 
 const connectDB = async () => {
     try {
