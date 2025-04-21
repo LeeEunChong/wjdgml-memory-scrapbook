@@ -94,11 +94,20 @@ connectDB();
 
 // Memory Schema
 const memorySchema = new mongoose.Schema({
-    title: String,
-    content: String,
+    title: {
+        type: String,
+        required: [true, '제목은 필수입니다'],
+        trim: true,
+        maxlength: [100, '제목은 100자 이내로 입력해주세요']
+    },
+    content: {
+        type: String,
+        required: [true, '내용은 필수입니다'],
+        trim: true
+    },
     date: {
         type: Date,
-        required: true,
+        required: [true, '날짜는 필수입니다'],
         validate: {
             validator: function(v) {
                 return v instanceof Date && !isNaN(v);
@@ -106,9 +115,26 @@ const memorySchema = new mongoose.Schema({
             message: props => `${props.value}는 유효한 날짜가 아닙니다!`
         }
     },
-    imageUrl: String,
-    createdAt: { type: Date, default: Date.now }
+    imageUrl: {
+        type: String,
+        required: [true, '이미지는 필수입니다']
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+}, {
+    timestamps: true, // createdAt과 updatedAt을 자동으로 관리
+    versionKey: false // __v 필드를 비활성화
 });
+
+// 스키마에 인덱스 추가
+memorySchema.index({ date: -1 }); // 날짜 기준 내림차순 정렬을 위한 인덱스
+memorySchema.index({ title: 'text', content: 'text' }); // 텍스트 검색을 위한 인덱스
 
 const Memory = mongoose.model('Memory', memorySchema);
 
