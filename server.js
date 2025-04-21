@@ -51,14 +51,24 @@ const connectDB = async () => {
         });
         console.log("MongoDB 연결 성공!");
 
-        // 컬렉션 초기화
+        // 컬렉션 초기화 및 확인
         const db = mongoose.connection.db;
+        
+        // 모든 컬렉션 목록 가져오기
         const collections = await db.listCollections().toArray();
-        const collectionNames = collections.map(col => col.name);
+        console.log('현재 데이터베이스의 컬렉션 목록:', collections.map(col => col.name));
 
-        if (!collectionNames.includes('memories')) {
+        // memories 컬렉션이 없으면 생성
+        if (!collections.some(col => col.name === 'memories')) {
+            console.log('memories 컬렉션이 없습니다. 생성합니다...');
             await db.createCollection('memories');
             console.log('memories 컬렉션이 생성되었습니다.');
+        } else {
+            console.log('memories 컬렉션이 이미 존재합니다.');
+            
+            // 컬렉션의 문서 수 확인
+            const count = await db.collection('memories').countDocuments();
+            console.log(`memories 컬렉션의 문서 수: ${count}`);
         }
 
         // 연결 상태 모니터링
