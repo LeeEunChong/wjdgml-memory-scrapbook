@@ -3,41 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리의 추억 스크랩북</title>
+    <title>디지털 스크랩북</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .memory-slider {
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .slider-container {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        .slider-item {
+            min-width: 100%;
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+        }
+        .gallery-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .month-section {
+            background: var(--card-background);
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .month-header {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .memory-card {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .memory-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .memory-card:hover img {
+            transform: scale(1.1);
+        }
+        .memory-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.5rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        .memory-card:hover .memory-info {
+            transform: translateY(0);
+        }
+        .add-memory-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: relative;
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 10px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>우리의 추억 스크랩북</h1>
-            <nav>
-                <button id="addMemoryBtn">추억 추가</button>
-                <button id="themeBtn">테마 변경</button>
-            </nav>
+            <h1>디지털 스크랩북</h1>
         </header>
 
-        <main>
-            <div class="timeline-container">
-                <!-- 타임라인이 여기에 동적으로 추가됩니다 -->
+        <div class="memory-slider">
+            <div class="slider-container" id="sliderContainer">
+                <!-- 슬라이더 아이템들이 여기에 동적으로 추가됩니다 -->
             </div>
-        </main>
+        </div>
 
-        <div id="memoryModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>새로운 추억 추가</h2>
-                <form id="memoryForm">
-                    <input type="date" id="memoryDate" required>
-                    <input type="text" id="memoryTitle" placeholder="제목" required>
-                    <textarea id="memoryContent" placeholder="추억을 기록하세요..." required></textarea>
-                    <input type="file" id="memoryMedia" accept="image/*,video/*">
-                    <button type="submit">저장</button>
-                </form>
-            </div>
+        <div class="gallery-container" id="galleryContainer">
+            <!-- 월별 섹션들이 여기에 동적으로 추가됩니다 -->
+        </div>
+
+        <button class="add-memory-btn" id="addMemoryBtn">+</button>
+    </div>
+
+    <div class="modal" id="memoryModal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <h2>새로운 추억 추가</h2>
+            <form id="memoryForm" enctype="multipart/form-data">
+                <input type="text" id="memoryTitle" name="title" placeholder="제목" required>
+                <textarea id="memoryDescription" name="content" placeholder="설명" required></textarea>
+                <input type="date" id="memoryDate" name="date" required>
+                <input type="file" id="memoryImage" name="image" accept="image/*" required>
+                <div class="preview-image" id="imagePreview"></div>
+                <button type="submit">추가하기</button>
+            </form>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        // 모달 관련 기능
+        const modal = document.getElementById('memoryModal');
+        const addMemoryBtn = document.getElementById('addMemoryBtn');
+        const closeModal = document.getElementById('closeModal');
+        const memoryForm = document.getElementById('memoryForm');
+        const imageInput = document.getElementById('memoryImage');
+        const imagePreview = document.getElementById('imagePreview');
+
+        addMemoryBtn.addEventListener('click', () => modal.style.display = 'block');
+        closeModal.addEventListener('click', () => modal.style.display = 'none');
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+
+        // 이미지 미리보기
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.style.display = 'block';
+                    imagePreview.innerHTML = `<img src="${e.target.result}" alt="미리보기">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 메모리 추가
+        memoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('title', document.getElementById('memoryTitle').value);
+            formData.append('content', document.getElementById('memoryDescription').value);
+            formData.append('date', document.getElementById('memoryDate').value);
+            formData.append('image', document.getElementById('memoryImage').files[0]);
+
+            try {
+                const response = await fetch('/api/memories', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    modal.style.display = 'none';
+                    memoryForm.reset();
+                    imagePreview.style.display = 'none';
+                    fetchMemories();
+                } else {
+                    const errorData = await response.json();
+                    alert('추억 추가에 실패했습니다: ' + errorData.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('오류가 발생했습니다: ' + error.message);
+            }
+        });
+
+        // 메모리 가져오기
+        async function fetchMemories() {
+            try {
+                const response = await fetch('/api/memories');
+                const memories = await response.json();
+                
+                // 월별로 그룹화
+                const groupedMemories = memories.reduce((acc, memory) => {
+                    const date = new Date(memory.date);
+                    const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+                    if (!acc[monthKey]) {
+                        acc[monthKey] = [];
+                    }
+                    acc[monthKey].push(memory);
+                    return acc;
+                }, {});
+
+                // 갤러리 업데이트
+                updateGallery(groupedMemories);
+                
+                // 슬라이더 업데이트
+                updateSlider(memories);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // 갤러리 업데이트
+        function updateGallery(groupedMemories) {
+            const galleryContainer = document.getElementById('galleryContainer');
+            galleryContainer.innerHTML = '';
+
+            Object.entries(groupedMemories)
+                .sort(([a], [b]) => b.localeCompare(a))
+                .forEach(([monthKey, memories]) => {
+                    const [year, month] = monthKey.split('-');
+                    const monthSection = document.createElement('div');
+                    monthSection.className = 'month-section';
+                    
+                    monthSection.innerHTML = `
+                        <h2 class="month-header">${year}년 ${month}월</h2>
+                        <div class="memory-grid">
+                            ${memories.map(memory => `
+                                <div class="memory-card">
+                                    <img src="${memory.imageUrl}" alt="${memory.title}">
+                                    <div class="memory-info">
+                                        <h3>${memory.title}</h3>
+                                        <p>${memory.description}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    galleryContainer.appendChild(monthSection);
+                });
+        }
+
+        // 슬라이더 업데이트
+        function updateSlider(memories) {
+            const sliderContainer = document.getElementById('sliderContainer');
+            sliderContainer.innerHTML = memories
+                .slice(0, 5) // 최근 5개의 메모리만 표시
+                .map(memory => `
+                    <div class="slider-item" style="background-image: url('${memory.imageUrl}')">
+                        <div class="memory-info">
+                            <h3>${memory.title}</h3>
+                            <p>${memory.description}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+            // 슬라이더 자동 재생
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slider-item');
+            
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                sliderContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+            }
+
+            setInterval(nextSlide, 5000);
+        }
+
+        // 초기 메모리 로드
+        fetchMemories();
+    </script>
 </body>
 </html> 
